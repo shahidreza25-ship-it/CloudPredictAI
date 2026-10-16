@@ -1,61 +1,149 @@
-
-import numpy as np
 import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import joblib
 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, r2_score
 
-# Generate sample cloud workload data
-np.random.seed(42)
-n = 1000
-time = np.arange(n)
+# ==========================================
+# CLOUDPREDICT AI - MODEL TRAINING
+# ==========================================
 
-cpu = np.clip(
-    45 + 20 * np.sin(time / 35) + np.random.normal(0, 7, n),
-    5, 98
-)
-memory = np.clip(
-    50 + 0.45 * (cpu - 45) + np.random.normal(0, 6, n),
-    10, 98
-)
+# Sample cloud workload data
+data = {
+    "cpu_usage": [
+        20, 25, 30, 35, 40,
+        45, 50, 55, 60, 65,
+        70, 75, 80, 85, 90,
+        22, 32, 42, 52, 62,
+        72, 82, 92, 28, 48
+    ],
 
-next_cpu = np.roll(cpu, -1)
-next_cpu[-1] = cpu[-1]
+    "memory_usage": [
+        30, 35, 40, 45, 50,
+        55, 60, 65, 70, 75,
+        80, 82, 85, 88, 92,
+        32, 42, 52, 62, 72,
+        78, 86, 94, 38, 58
+    ],
 
-df = pd.DataFrame({
-    "cpu_usage": cpu,
-    "memory_usage": memory,
-    "next_cpu_usage": next_cpu
-})
+    # Expected future CPU workload
+    "predicted_cpu_usage": [
+        25, 30, 35, 40, 45,
+        50, 55, 60, 65, 70,
+        75, 80, 85, 90, 95,
+        27, 37, 47, 57, 67,
+        77, 87, 97, 34, 54
+    ]
+}
 
-X = df[["cpu_usage", "memory_usage"]]
-y = df["next_cpu_usage"]
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+
+# ==========================================
+# INPUT FEATURES
+# ==========================================
+
+X = df[
+    [
+        "cpu_usage",
+        "memory_usage"
+    ]
+]
+
+
+# ==========================================
+# TARGET
+# ==========================================
+
+y = df["predicted_cpu_usage"]
+
+
+# ==========================================
+# TRAIN / TEST SPLIT
+# ==========================================
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
 )
 
+
+# ==========================================
+# RANDOM FOREST MODEL
+# ==========================================
+
 model = RandomForestRegressor(
-    n_estimators=100, random_state=42
+    n_estimators=100,
+    random_state=42
 )
+
+
+# ==========================================
+# TRAIN MODEL
+# ==========================================
+
 model.fit(X_train, y_train)
+
+
+# ==========================================
+# TEST MODEL
+# ==========================================
 
 predictions = model.predict(X_test)
 
-print("CLOUDPREDICT AI")
-print("Training rows:", len(X_train))
-print("Testing rows:", len(X_test))
-print("MAE:", round(mean_absolute_error(y_test, predictions), 2))
-print("R2 Score:", round(r2_score(y_test, predictions), 3))
 
-joblib.dump(model, "cloud_model.joblib")
-print("Model saved successfully!")
+# ==========================================
+# MODEL EVALUATION
+# ==========================================
 
-sample = pd.DataFrame({
-    "cpu_usage": [75],
-    "memory_usage": [80]
-})
-print("Predicted next CPU usage:",
-      round(model.predict(sample)[0], 2), "%")
+mae = mean_absolute_error(
+    y_test,
+    predictions
+)
+
+mse = mean_squared_error(
+    y_test,
+    predictions
+)
+
+rmse = np.sqrt(mse)
+
+r2 = r2_score(
+    y_test,
+    predictions
+)
+
+
+# ==========================================
+# DISPLAY RESULTS
+# ==========================================
+
+print("========================================")
+print("       CloudPredict AI")
+print("       Model Training")
+print("========================================")
+
+print("MAE  :", round(mae, 2))
+print("MSE  :", round(mse, 2))
+print("RMSE :", round(rmse, 2))
+print("R2   :", round(r2, 2))
+
+
+# ==========================================
+# SAVE MODEL
+# ==========================================
+
+joblib.dump(
+    model,
+    "cloud_model.joblib"
+)
+
+print()
+print("Model trained successfully!")
+print("Model saved as: cloud_model.joblib")

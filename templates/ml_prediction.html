@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CloudPredict AI - ML Prediction</title>
+
+    <style>
+        body {
+            background: #071426;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .box {
+            background: #10233d;
+            width: 500px;
+            margin: auto;
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        h1 {
+            color: #4da3ff;
+        }
+
+        input {
+            width: 80%;
+            padding: 12px;
+            margin: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #1976d2;
+        }
+
+        .result {
+            margin-top: 25px;
+            font-size: 20px;
+            color: #4da3ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="box">
+
+        <h1>🤖 CloudPredict AI</h1>
+
+        <p>Machine Learning Cloud Workload Prediction</p>
+
+        <form method="POST">
+
+            <input
+                type="number"
+                name="cpu_usage"
+                placeholder="Enter CPU Usage (%)"
+                step="any"
+                required
+            >
+
+            <br>
+
+            <input
+                type="number"
+                name="memory_usage"
+                placeholder="Enter Memory Usage (%)"
+                step="any"
+                required
+            >
+
+            <br>
+
+            <button type="submit">
+                Run Prediction
+            </button>
+
+        </form>
+
+        {% if prediction is not none %}
+            <div class="result">
+                Predicted CPU Usage:
+                <strong>{{ prediction }}</strong> %
+            </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
